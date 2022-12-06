@@ -12,6 +12,8 @@
 <h2>Wrong vote input</h2>
 <p>Type: 418</p>
 
+<%--<% exception.printStackTrace(response.getWriter()); %>--%>
+
 <c:forEach var="exception" items="${exceptionList}">
     <p>${exception}</p> <br>
 </c:forEach>

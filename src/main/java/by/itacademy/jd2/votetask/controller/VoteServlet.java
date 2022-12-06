@@ -28,7 +28,7 @@ public class VoteServlet extends HttpServlet {
         PrintWriter writer = resp.getWriter();
         Map<String, String[]> parameterMap = req.getParameterMap();
         Vote extractedVote = voteExtractor.extract(parameterMap);
-        voteValidator.validate(extractedVote, req, resp);
+        voteValidator.validate(extractedVote);
         voteService.addVote(extractedVote);
         writer.write(TAGGED_SUCCESS);
     }

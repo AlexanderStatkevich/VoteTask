@@ -82,7 +82,6 @@ public class VotesContentHolder {
         for (Genre genre : genres) {
             votesForGenres.put(genre.getTitle(), 0);
         }
-
     }
 
     public Map<String, Integer> getSortedPerformerVotes() {
