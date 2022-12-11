@@ -5,7 +5,6 @@ import by.itacademy.jd2.votetask.dto.PerformerDTO;
 import by.itacademy.jd2.votetask.service.api.IPerformerService;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class PerformerService implements IPerformerService {
 
@@ -17,16 +16,14 @@ public class PerformerService implements IPerformerService {
     }
 
     @Override
-    public List<String> getContent() {
-        return performersDao.readAll().stream()
-                .map(PerformerDTO::getNickName)
-                .collect(Collectors.toList());
+    public List<PerformerDTO> getContent() {
+        return performersDao.readAll();
     }
 
-    public boolean exist(String name) {
-        if(name == null || name.isBlank()){
+    public boolean exist(Long id) {
+        if(id == null){
             throw new IllegalArgumentException("Performer nickname can't be empty");
         }
-        return performersDao.exist(name);
+        return performersDao.exist(id);
     }
 }

@@ -12,63 +12,65 @@ import by.itacademy.jd2.votetask.dto.SavedVoteDTO;
 import by.itacademy.jd2.votetask.dto.VoteDto;
 import by.itacademy.jd2.votetask.dto.VoteResultDto;
 import by.itacademy.jd2.votetask.service.api.IStatisticsService;
+import by.itacademy.jd2.votetask.util.SavedVoteComparatorByTime;
 import by.itacademy.jd2.votetask.util.SortMapUtil;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class StatisticsService implements IStatisticsService {
 
-    private final String PERFORMER_DO_NOT_EXIST = "PerformerDTO do not exist";
-    private final String GENRE_DO_NOT_EXIST = "GenreDTO do not exist";
-    private final String PERFORMER_IS_EMPTY = "PerformerDTO is empty";
-    private final String GENRE_IS_EMPTY = "GenreDTO is empty";
-    private final String INFO_IS_EMPTY = "Info is empty";
-    private final String WRONG_NUMBER_OF_GENRES = "Wrong number of genres";
-    private final int MIN_GENRE_CHOICES = 3;
-    private final int MAX_GENRE_CHOICES = 5;
+    private final IVoteDao<SavedVoteDTO> voteDao = VoteDaoSingleton.getInstance();
     private final IPerformersDao<PerformerDTO> performersDao = PerformersDaoSingleton.getInstance();
     private final IGenresDao<GenreDTO> genresDao = GenresDaoSingleton.getInstance();
-    private final List<PerformerDTO> performerDTOList = performersDao.readAll();
-
-    private final List<GenreDTO> genresList = genresDao.readAll();
-    private final List<String> errors = new ArrayList<>();
-
-    private final IVoteDao<SavedVoteDTO> voteDao = VoteDaoSingleton.getInstance();
 
     public VoteResultDto getVoteResult() {
-        List<SavedVoteDTO> voteDtos = voteDao.readAll();
-        Map<String, Long> sortedPerformerVotes = getSortedPerformerVotes(voteDtos);
-        Map<String, Long> sortedGenreVotes = getSortedGenreVotes(voteDtos);
-        Map<LocalDateTime, String> sortedVoteInfos = getSortedVoteInfos(voteDtos);
+        List<SavedVoteDTO> voteDtoList = voteDao.readAll();
+        Map<String, Long> sortedPerformerVotes = getSortedPerformerVotes(voteDtoList);
+        Map<String, Long> sortedGenreVotes = getSortedGenreVotes(voteDtoList);
+        List<SavedVoteDTO> sortedVoteInfos = getSortedVoteInfos(voteDtoList);
         return new VoteResultDto(sortedPerformerVotes, sortedGenreVotes, sortedVoteInfos);
     }
 
 
-    private Map<String, Long> getSortedPerformerVotes(List<SavedVoteDTO> voteDtos) {
-        Map<String, Long> votesForPerformers = voteDtos.stream()
-                .collect(Collectors.groupingBy(VoteDto::getVoiceForPerformer, Collectors.counting()));
+    private Map<String, Long> getSortedPerformerVotes(List<SavedVoteDTO> voteDtoList) {
+        List<PerformerDTO> performerDTOS = performersDao.readAll();
+        Map<Long, String> performerNamesMap = performerDTOS.stream()
+                .collect(Collectors.toMap(PerformerDTO::getId, PerformerDTO::getNickName));
 
-        return SortMapUtil.sortByValue(votesForPerformers);
+        Map<Long, Long> idVotesForPerformers = voteDtoList.stream()
+                .map(SavedVoteDTO::getVote)
+                .map(VoteDto::getVoiceForPerformer)
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        Map<String, Long> nameVotesForPerformers = idVotesForPerformers.entrySet().stream()
+                .collect(Collectors.toMap(entry -> performerNamesMap.get(entry.getKey()), Map.Entry::getValue));
+
+        return SortMapUtil.sortByValue(nameVotesForPerformers);
     }
 
-    private Map<String, Long> getSortedGenreVotes(List<SavedVoteDTO> voteDtos) {
-        Map<String, Long> votesForGenres = voteDtos.stream()
+    private Map<String, Long> getSortedGenreVotes(List<SavedVoteDTO> voteDtoList) {
+        List<GenreDTO> genreDTOS = genresDao.readAll();
+        Map<Long, String> genresTitleMap = genreDTOS.stream()
+                .collect(Collectors.toMap(GenreDTO::getId, GenreDTO::getTitle));
+
+        Map<Long, Long> idVotesForGenres = voteDtoList.stream()
+                .map(SavedVoteDTO::getVote)
                 .map(VoteDto::getVoicesForGenres)
                 .flatMap(Collection::stream)
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-        return SortMapUtil.sortByValue(votesForGenres);
+
+        Map<String, Long> nameVotesForPerformers = idVotesForGenres.entrySet().stream()
+                .collect(Collectors.toMap(entry -> genresTitleMap.get(entry.getKey()), Map.Entry::getValue));
+
+        return SortMapUtil.sortByValue(nameVotesForPerformers);
     }
 
-    private Map<LocalDateTime, String> getSortedVoteInfos(List<SavedVoteDTO> voteDtos) {
-        return voteDtos.stream()
-                .collect(Collectors.toMap(VoteDto::getTime, VoteDto::getAbout, (a, b) -> a, TreeMap::new));
+    private List<SavedVoteDTO> getSortedVoteInfos(List<SavedVoteDTO> voteDtoList) {
+        voteDtoList.sort(new SavedVoteComparatorByTime());
+        return voteDtoList;
     }
-
 }

@@ -3,10 +3,17 @@ package by.itacademy.jd2.votetask.dto;
 import java.util.Objects;
 
 public class GenreDTO {
+
+    private final Long id;
     private final String title;
 
-    public GenreDTO(String title) {
+    public GenreDTO(Long id, String title) {
+        this.id = id;
         this.title = title;
+    }
+
+    public Long getId() {
+        return id;
     }
 
     public String getTitle() {

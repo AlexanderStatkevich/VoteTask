@@ -7,10 +7,10 @@ import java.util.List;
 
 public class PerformersDao implements IPerformersDao<PerformerDTO> {
     private static List<PerformerDTO> PERFORMERS = List.of(
-            new PerformerDTO("PerformerDTO 1"),
-            new PerformerDTO("PerformerDTO 2"),
-            new PerformerDTO("PerformerDTO 3"),
-            new PerformerDTO("PerformerDTO 4"));
+            new PerformerDTO(1L,"Performer 1"),
+            new PerformerDTO(2L,"Performer 2"),
+            new PerformerDTO(3L,"Performer 3"),
+            new PerformerDTO(4L,"Performer 4"));
 
 
     @Override
@@ -29,9 +29,9 @@ public class PerformersDao implements IPerformersDao<PerformerDTO> {
     }
 
     @Override
-    public boolean exist(String nickName) {
+    public boolean exist(Long id) {
         for (PerformerDTO performerDTO : PERFORMERS) {
-            if(nickName.equals(performerDTO.getNickName())){
+            if(id.equals(performerDTO.getId())){
                 return true;
             }
         }

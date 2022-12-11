@@ -1,8 +1,6 @@
 package by.itacademy.jd2.votetask.service;
 
 import by.itacademy.jd2.votetask.dao.api.IVoteDao;
-import by.itacademy.jd2.votetask.dto.GenreDTO;
-import by.itacademy.jd2.votetask.dto.PerformerDTO;
 import by.itacademy.jd2.votetask.dto.SavedVoteDTO;
 import by.itacademy.jd2.votetask.dto.VoteDto;
 import by.itacademy.jd2.votetask.exceptions.InvalidVoteException;
@@ -10,7 +8,7 @@ import by.itacademy.jd2.votetask.service.api.IGenreService;
 import by.itacademy.jd2.votetask.service.api.IPerformerService;
 import by.itacademy.jd2.votetask.service.api.IVoteService;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,11 +17,22 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class VoteService implements IVoteService {
+    public static final String GENRES_DUPLICATED = "Genres duplicated";
+    public static final String PERFORMER_DO_NOT_EXIST = "Performer doesn't exist";
+    public static final String GENRE_DO_NOT_EXIST = "Genre doesn't exist";
+    public static final String GENRE_LIST_IS_EMPTY = "Genre list is empty";
+    private final String PERFORMER_IS_EMPTY = "PerformerDTO is empty";
+    private final String GENRE_IS_EMPTY = "GenreDTO is empty";
+    private final String INFO_IS_EMPTY = "Info is empty";
+    private final String WRONG_NUMBER_OF_GENRES = "Wrong number of genres";
+    private final int MIN_GENRE_CHOICES = 3;
+    private final int MAX_GENRE_CHOICES = 5;
 
     private final IVoteDao<SavedVoteDTO> voteDao;
     private final IPerformerService performerService;
     private final IGenreService genreService;
     private final Lock lock = new ReentrantLock();
+
 
     public VoteService(IVoteDao<SavedVoteDTO> voteDao, IPerformerService performerService, IGenreService genreService) {
         this.voteDao = voteDao;
@@ -47,17 +56,17 @@ public class VoteService implements IVoteService {
     }
 
     private void validate(VoteDto voteDto){
-
+        List<String> errors = new ArrayList<>();
         int votesForGenreListSize = voteDto.getVoicesForGenres().size();
-        String voiceForPerformer = voteDto.getVoiceForPerformer();
-        List<String> voicesForGenres = voteDto.getVoicesForGenres();
-        String info = voteDto.getInfo();
+        Long voiceForPerformer = voteDto.getVoiceForPerformer();
+        List<Long> voicesForGenres = voteDto.getVoicesForGenres();
+        String info = voteDto.getAbout();
 
-        if (voiceForPerformer.isEmpty()) {
+        if (voiceForPerformer == null) {
             errors.add(PERFORMER_IS_EMPTY);
         }
         if (voicesForGenres.isEmpty()) {
-            errors.add(GENRE_IS_EMPTY);
+            errors.add(GENRE_LIST_IS_EMPTY);
         }
         if (info.isEmpty()) {
             errors.add(INFO_IS_EMPTY);
@@ -65,67 +74,27 @@ public class VoteService implements IVoteService {
         if (votesForGenreListSize < MIN_GENRE_CHOICES || votesForGenreListSize > MAX_GENRE_CHOICES) {
             errors.add(WRONG_NUMBER_OF_GENRES);
         }
-        boolean validPerformer = performerDTOList.stream()
-                .map(PerformerDTO::getNickName)
-                .anyMatch(nick -> nick.equals(voiceForPerformer));
-        if (!validPerformer) {
+
+        Set<Long> voicesForGenresSet = new HashSet<>(voicesForGenres);
+
+        if(voicesForGenres.size() != voicesForGenresSet.size()){
+            errors.add(GENRES_DUPLICATED);
+        }
+
+        if(!this.performerService.exist(voiceForPerformer)){
             errors.add(PERFORMER_DO_NOT_EXIST);
         }
-        for (String voiceForGenre : voicesForGenres) {
-            boolean validGenre = genresList.stream()
-                    .map(GenreDTO::getTitle)
-                    .anyMatch(nick -> nick.equals(voiceForGenre));
-            if (!validGenre) {
+
+        for (Long genre : voicesForGenres) {
+            if(genre == null){
+                errors.add(GENRE_IS_EMPTY);
+            }
+            if(!this.genreService.exist(genre)){
                 errors.add(GENRE_DO_NOT_EXIST);
             }
         }
         if (!errors.isEmpty()) {
             throw new InvalidVoteException(errors);
-        }
-
-
-
-        String artist = vote.getArtist();
-
-        if(artist == null || artist.isBlank()){
-            throw new IllegalArgumentException("Артист не передан");
-        }
-
-        if(!this.performerService.exist(artist)){
-            throw new IllegalArgumentException("Артиста " + artist + " не существует");
-        }
-
-        String[] genres = vote.getGenres();
-
-        if(genres == null){
-            throw new IllegalArgumentException("Жанры не переданы");
-        }
-
-        if(genres.length < 3 || genres.length > 5){
-            throw new IllegalArgumentException("Проблема с количеством жанров, их должно быть от 3 до 5");
-        }
-
-        for (String genre : genres) {
-            if(genre == null || genre.isBlank()){
-                throw new IllegalArgumentException("Жанр не передан");
-            }
-
-            if(!this.genreService.exist(genre)){
-                throw new IllegalArgumentException("Жанра " + genre + " не существует");
-            }
-        }
-
-        Set<String> names = new HashSet<>();
-        names.addAll(Arrays.asList(genres));
-
-        if(genres.length != names.size()){
-            throw new IllegalArgumentException("Жанры содержат дубли");
-        }
-
-        String about = vote.getAbout();
-
-        if(about == null || about.isBlank()){
-            throw new IllegalArgumentException("О себе не передан");
         }
     }
 

@@ -4,21 +4,21 @@ import java.util.List;
 import java.util.Objects;
 
 public class VoteDto {
-    private final String voiceForPerformer;
-    private final List<String> voicesForGenres;
+    private final Long voiceForPerformer;
+    private final List<Long> voicesForGenres;
     private final String about;
 
-    public VoteDto(String voiceForPerformer, List<String> voicesForGenres, String about) {
+    public VoteDto(Long voiceForPerformer, List<Long> voicesForGenres, String about) {
         this.voiceForPerformer = voiceForPerformer;
         this.voicesForGenres = voicesForGenres;
         this.about = about;
     }
 
-    public String getVoiceForPerformer() {
+    public Long getVoiceForPerformer() {
         return voiceForPerformer;
     }
 
-    public List<String> getVoicesForGenres() {
+    public List<Long> getVoicesForGenres() {
         return voicesForGenres;
     }
 
@@ -42,7 +42,7 @@ public class VoteDto {
     @Override
     public String toString() {
         return "VoteDto{" +
-                "voiceForPerformer='" + voiceForPerformer + '\'' +
+                "voiceForPerformer=" + voiceForPerformer +
                 ", voicesForGenres=" + voicesForGenres +
                 ", about='" + about + '\'' +
                 '}';

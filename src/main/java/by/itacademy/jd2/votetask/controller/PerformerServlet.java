@@ -1,8 +1,8 @@
 package by.itacademy.jd2.votetask.controller;
 
+import by.itacademy.jd2.votetask.dto.PerformerDTO;
 import by.itacademy.jd2.votetask.service.api.IPerformerService;
 import by.itacademy.jd2.votetask.service.factories.PerformerServiceSingleton;
-import by.itacademy.jd2.votetask.util.BuildHtmlUtil;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,8 +15,8 @@ import java.util.List;
 @WebServlet(name = "PerformerServlet", urlPatterns = "/performers")
 public class PerformerServlet extends HttpServlet {
 
+    private static final String BR = "<br>";
     private static final String HEADER = "<p><b>Choose one performer:</b></p>";
-
     private static final String FOOTER = "<p><b>Thanks for your vote!</b></p>";
 
     private final IPerformerService performerService = PerformerServiceSingleton.getInstance();
@@ -26,8 +26,14 @@ public class PerformerServlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
         resp.setContentType("text/html; charset=UTF-8");
         PrintWriter writer = resp.getWriter();
-        List<String> content = performerService.getContent();
-        String htmlResult = BuildHtmlUtil.build(content,HEADER,FOOTER);
+
+        List<PerformerDTO> genreDtoList = performerService.getContent();
+        StringBuilder str = new StringBuilder();
+        for(PerformerDTO performerDTO :genreDtoList){
+            str.append(performerDTO.getId()).append(" - ").append(performerDTO.getNickName()).append(BR);
+        }
+        String htmlResult = HEADER + str + FOOTER;
+
         writer.write(htmlResult);
     }
 }
