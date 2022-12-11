@@ -1,10 +1,7 @@
 package by.itacademy.jd2.votetask.controller;
 
-import by.itacademy.jd2.votetask.dao.api.IPerformersDao;
-import by.itacademy.jd2.votetask.dao.PerformersDao;
-import by.itacademy.jd2.votetask.domain.Performer;
 import by.itacademy.jd2.votetask.service.api.IPerformerService;
-import by.itacademy.jd2.votetask.service.PerformerService;
+import by.itacademy.jd2.votetask.service.factories.PerformerServiceSingleton;
 import by.itacademy.jd2.votetask.util.BuildHtmlUtil;
 
 import javax.servlet.annotation.WebServlet;
@@ -22,8 +19,7 @@ public class PerformerServlet extends HttpServlet {
 
     private static final String FOOTER = "<p><b>Thanks for your vote!</b></p>";
 
-    private final IPerformersDao<Performer> performersDao = new PerformersDao();
-    private final IPerformerService performerService = new PerformerService(performersDao);
+    private final IPerformerService performerService = PerformerServiceSingleton.getInstance();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {

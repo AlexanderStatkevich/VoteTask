@@ -20,8 +20,8 @@ public class VoteViewResultServlet extends HttpServlet {
     private static final String HEADER_GENRES_RESULT = "<p>Total score among Genres:</p>";
     private static final String HEADER_ABOUT_RESULT = "<p>Info about voters:</p>";
     private static final String BR = "<br>";
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd.LLL HH:mm:ss");
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd.LLL HH:mm:ss");
     private final StatisticsService statisticsService = StatisticsServiceSingleton.getInstance();
 
     @Override

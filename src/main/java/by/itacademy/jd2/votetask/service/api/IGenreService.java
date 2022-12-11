@@ -5,4 +5,5 @@ import java.util.List;
 public interface IGenreService {
 
     List<String> getContent();
+    boolean exist(String name);
 }
