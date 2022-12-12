@@ -20,7 +20,7 @@ public class VoteServlet extends HttpServlet {
     private static final String PERFORMER_LOWER_CASE = "performer";
     private static final String GENRE_LOWER_CASE = "genre";
     private static final String ABOUT_LOWER_CASE = "about";
-    public static final String TAB = ",  ";;
+    public static final String TAB = ",  ";
     private final VoteService voteService = VoteServiceSingleton.getInstance();
 
 
@@ -30,19 +30,18 @@ public class VoteServlet extends HttpServlet {
         resp.setContentType("text/html; charset=UTF-8");
         Map<String, String[]> parameterMap = req.getParameterMap();
         try {
-
-            VoteDto voteDto = voteDtoExtractor(parameterMap);
+            VoteDto voteDto = voteDtoExtractAndValidate(parameterMap);
             voteService.addVote(voteDto);
             resp.sendRedirect(req.getContextPath() + "/vote_result");
-
         } catch (InvalidVoteException e) {
             List<String> voteExceptionList = e.getVoteExceptionList();
             String voteExceptions = String.join(TAB, voteExceptionList);
             resp.sendError(HttpServletResponse.SC_EXPECTATION_FAILED, voteExceptions);
+        } catch (IllegalArgumentException e){
+            resp.sendError(HttpServletResponse.SC_NOT_ACCEPTABLE,e.getMessage());
         }
     }
-
-    private VoteDto voteDtoExtractor( Map<String, String[]> parameterMap){
+    private VoteDto voteDtoExtractAndValidate(Map<String, String[]> parameterMap){
         String[] performers = parameterMap.get(PERFORMER_LOWER_CASE);
         Long performerId = (performers == null) ? null : Long.parseLong(performers[0]);
         if(performerId == null || performers.length > 1) {
@@ -50,19 +49,20 @@ public class VoteServlet extends HttpServlet {
         }
 
         String[] genres = parameterMap.get(GENRE_LOWER_CASE);
-        List<String> genresList = Arrays.asList(genres);
-        List<Long> genresIdList =null;
-        if(!genresList.isEmpty()) {
-            genresIdList = genresList.stream()
-                    .map(Long::parseLong)
-                    .collect(Collectors.toList());
+        List<Long> genresIdList = (genres == null) ? null : getListFromArray(genres);
+
+
+            String[] abouts = parameterMap.get(ABOUT_LOWER_CASE);
+            String about = (abouts == null) ? null : abouts[0];
+        if(about == null || abouts.length > 1) {
+            throw new IllegalArgumentException("Have to be only one about info");
         }
-
-        String[] abouts = parameterMap.get(ABOUT_LOWER_CASE);
-        String about = (abouts == null) ? null : abouts[0];
-
         return new VoteDto(performerId,genresIdList,about);
     }
-
-
+    private List<Long> getListFromArray(String[] array) {
+        List<String> arrayList = Arrays.asList(array);
+        return arrayList.stream()
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+    }
 }

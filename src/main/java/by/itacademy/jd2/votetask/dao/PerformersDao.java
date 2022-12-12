@@ -12,7 +12,6 @@ public class PerformersDao implements IPerformersDao<PerformerDTO> {
             new PerformerDTO(3L,"Performer 3"),
             new PerformerDTO(4L,"Performer 4"));
 
-
     @Override
     public void create(PerformerDTO performerDTO) {
         PERFORMERS.add(performerDTO);
