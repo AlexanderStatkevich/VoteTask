@@ -1,27 +1,27 @@
 package by.itacademy.jd2.votetask.dao;
 
 import by.itacademy.jd2.votetask.dao.api.IVoteDao;
-import by.itacademy.jd2.votetask.domain.Vote;
+import by.itacademy.jd2.votetask.dto.SavedVoteDTO;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class VoteDao implements IVoteDao<Vote> {
+public class VoteDao implements IVoteDao<SavedVoteDTO> {
 
-    List<Vote> voteList = new ArrayList<>();
+    private final List<SavedVoteDTO> savedVoteDTOS = new ArrayList<>();
 
     @Override
-    public void create(Vote vote) {
-        voteList.add(vote);
+    public void create(SavedVoteDTO savedVoteDTO) {
+        savedVoteDTOS.add(savedVoteDTO);
     }
     @Override
-    public List<Vote> readAll() {
-        return voteList;
+    public List<SavedVoteDTO> readAll() {
+        return savedVoteDTOS;
     }
 
     @Override
-    public void delete(Vote vote) {
-        voteList.remove(vote);
+    public void delete(SavedVoteDTO savedVoteDTO) {
+        savedVoteDTOS.remove(savedVoteDTO);
     }
 
 

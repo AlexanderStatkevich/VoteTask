@@ -1,5 +1,6 @@
 package by.itacademy.jd2.votetask.controller;
 
+import by.itacademy.jd2.votetask.dto.SavedVoteDTO;
 import by.itacademy.jd2.votetask.dto.VoteResultDto;
 import by.itacademy.jd2.votetask.service.StatisticsService;
 import by.itacademy.jd2.votetask.service.factories.StatisticsServiceSingleton;
@@ -10,8 +11,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Map;
 
 @WebServlet(name = "VoteViewResultServlet", urlPatterns = "/vote_result")
@@ -20,8 +21,8 @@ public class VoteViewResultServlet extends HttpServlet {
     private static final String HEADER_GENRES_RESULT = "<p>Total score among Genres:</p>";
     private static final String HEADER_ABOUT_RESULT = "<p>Info about voters:</p>";
     private static final String BR = "<br>";
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd.LLL HH:mm:ss");
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd.LLL HH:mm:ss");
     private final StatisticsService statisticsService = StatisticsServiceSingleton.getInstance();
 
     @Override
@@ -43,10 +44,10 @@ public class VoteViewResultServlet extends HttpServlet {
             writer.write("<p>" + genre.getKey() + "  " + genre.getValue() + "</p>");
         }
 
-        Map<LocalDateTime, String> infos = voteResult.getSortedVoteInfos();
+        List<SavedVoteDTO> sortedVoteInfos = voteResult.getSortedVoteInfos();
         writer.write(BR + HEADER_ABOUT_RESULT);
-        for (Map.Entry<LocalDateTime, String> info : infos.entrySet()) {
-            writer.write("<p>" + info.getKey().format(FORMATTER) + "  " + info.getValue() + "</p>");
+        for (SavedVoteDTO savedVote : sortedVoteInfos) {
+            writer.write("<p>" + savedVote.getCreateDateTime().format(FORMATTER) + "  " + savedVote.getVote().getAbout() + "</p>");
         }
     }
 }
