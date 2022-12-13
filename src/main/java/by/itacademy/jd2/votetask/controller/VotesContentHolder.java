@@ -21,11 +21,6 @@ public class VotesContentHolder {
 
     private static VotesContentHolder INSTANCE;
 
-    private VotesContentHolder() {
-        initPerformerVotes();
-        initGenreVotes();
-    }
-
     private final Map<String, Integer> votesForPerformers = new HashMap<>();
 
     private final Map<String, Integer> votesForGenres = new HashMap<>();
@@ -35,6 +30,11 @@ public class VotesContentHolder {
     private final IPerformersDao<Performer> performersDao = new PerformersDao();
 
     private final IGenresDao<Genre> genresDao = new GenresDao();
+
+    private VotesContentHolder() {
+        initPerformerVotes();
+        initGenreVotes();
+    }
 
     public static VotesContentHolder getInstance() {
         if (INSTANCE == null) {
