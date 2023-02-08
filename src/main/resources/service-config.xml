@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <import resource="dao-config.xml"/>
+
+    <bean id="genreService" class="by.itacademy.jd2.votetask.service.GenreService">
+        <constructor-arg name="genresDao" ref="genreDao"/>
+    </bean>
+
+    <bean id="performerService" class="by.itacademy.jd2.votetask.service.PerformerService">
+        <constructor-arg name="performersDao" ref="performerDao"/>
+    </bean>
+
+    <bean id="voteService" class="by.itacademy.jd2.votetask.service.VoteService">
+        <constructor-arg name="voteDao" ref="voteDao"/>
+        <constructor-arg name="performerService" ref="performerService"/>
+        <constructor-arg name="genreService" ref="genreService"/>
+    </bean>
+    <bean id="statisticsService" class="by.itacademy.jd2.votetask.service.StatisticsService">
+        <constructor-arg name="voteService" ref="voteService"/>
+        <constructor-arg name="performerService" ref="performerService"/>
+        <constructor-arg name="genreService" ref="genreService"/>
+    </bean>
+</beans>

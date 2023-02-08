@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <import resource="entitymanager-config.xml"/>
+
+    <bean id="genreDao" class="by.itacademy.jd2.votetask.dao.GenresDatabaseDao">
+        <constructor-arg name="factory" ref="emfactory"/>
+    </bean>
+
+    <bean id="performerDao" class="by.itacademy.jd2.votetask.dao.PerformersDatabaseDao">
+        <constructor-arg name="factory" ref="emfactory"/>
+    </bean>
+
+    <bean id="voteDao" class="by.itacademy.jd2.votetask.dao.VoteDatabaseDao">
+        <constructor-arg name="factory" ref="emfactory"/>
+    </bean>
+
+</beans>

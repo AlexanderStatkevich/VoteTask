@@ -15,6 +15,11 @@ public class VoteDto {
         this.about = about;
         this.email = email;
     }
+    public VoteDto(Long voiceForPerformer, List<Long> voicesForGenres, String about) {
+        this.voiceForPerformer = voiceForPerformer;
+        this.voicesForGenres = voicesForGenres;
+        this.about = about;
+    }
 
     public Long getVoiceForPerformer() {
         return voiceForPerformer;
